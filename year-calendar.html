@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Year Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f8f6;
+    --surface: #ffffff;
+    --ink: #1d2a2f;
+    --muted: #5f6d72;
+    --line: #d6dcda;
+    --line-strong: #aeb8b5;
+    --weekend-bg: #dfe9f3;
+    --weekend-ink: #24557f;
+    --holiday-bg: #f4dc7a;
+    --holiday-ink: #5b4300;
+    --today: #1f7a5a;
+    --accent: #1f7a5a;
+    --accent-ink: #ffffff;
+    --danger: #a33a2a;
+    --today-bg: #1f7a5a;
+    --today-ink: #ffffff;
+    --hc-red-bg: #f6c9c4;    --hc-red-ink: #7a1f14;
+    --hc-orange-bg: #fbd7b0; --hc-orange-ink: #6e3a00;
+    --hc-green-bg: #cbe8c4;  --hc-green-ink: #1f5a14;
+    --hc-teal-bg: #bfe6e2;   --hc-teal-ink: #0d4f49;
+    --hc-purple-bg: #ddd0f2; --hc-purple-ink: #45247a;
+    --hc-pink-bg: #f7cfe3;   --hc-pink-ink: #7a1e4b;
+    color-scheme: light;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151b1d;
+      --surface: #1c2427;
+      --ink: #e4ebe9;
+      --muted: #9aa8a5;
+      --line: #2f3b3f;
+      --line-strong: #4a5a5e;
+      --weekend-bg: #1f3347;
+      --weekend-ink: #a9cbec;
+      --holiday-bg: #6b5410;
+      --holiday-ink: #fbe9a6;
+      --today: #4cc49a;
+      --accent: #3aa57e;
+      --accent-ink: #0f1a16;
+      --danger: #e2826f;
+      --today-bg: #3aa57e;
+      --today-ink: #0f1a16;
+      --hc-red-bg: #6e2a22;    --hc-red-ink: #ffd4cd;
+      --hc-orange-bg: #6b3f12; --hc-orange-ink: #ffdcb5;
+      --hc-green-bg: #2c5224;  --hc-green-ink: #d3f2c9;
+      --hc-teal-bg: #1b4c47;   --hc-teal-ink: #c6f0eb;
+      --hc-purple-bg: #46336b; --hc-purple-ink: #e5d9fb;
+      --hc-pink-bg: #652a47;   --hc-pink-ink: #fcd3e7;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #151b1d;
+    --surface: #1c2427;
+    --ink: #e4ebe9;
+    --muted: #9aa8a5;
+    --line: #2f3b3f;
+    --line-strong: #4a5a5e;
+    --weekend-bg: #1f3347;
+    --weekend-ink: #a9cbec;
+    --holiday-bg: #6b5410;
+    --holiday-ink: #fbe9a6;
+    --today: #4cc49a;
+    --accent: #3aa57e;
+    --accent-ink: #0f1a16;
+    --danger: #e2826f;
+    --today-bg: #3aa57e;
+    --today-ink: #0f1a16;
+    --hc-red-bg: #6e2a22;    --hc-red-ink: #ffd4cd;
+    --hc-orange-bg: #6b3f12; --hc-orange-ink: #ffdcb5;
+    --hc-green-bg: #2c5224;  --hc-green-ink: #d3f2c9;
+    --hc-teal-bg: #1b4c47;   --hc-teal-ink: #c6f0eb;
+    --hc-purple-bg: #46336b; --hc-purple-ink: #e5d9fb;
+    --hc-pink-bg: #652a47;   --hc-pink-ink: #fcd3e7;
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Public Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  /* OLD CODE
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 24px 20px 48px; }
+  */
+  .wrap { max-width: 1560px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header.top {
+    display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px;
+    margin-bottom: 20px;
+  }
+  .year-block { display: flex; align-items: center; gap: 6px; }
+  .year-block h1 {
+    margin: 0; font-size: 3rem; font-weight: 700; letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; line-height: 1; min-width: 3.2ch; text-align: center;
+  }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+    font-size: 1.1rem; cursor: pointer; display: grid; place-items: center;
+  }
+  .icon-btn:hover { border-color: var(--ink); }
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-end; }
+  label.field { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+  input, select, textarea, button { font: inherit; color: inherit; }
+  input[type="number"], input[type="date"], input[type="text"], select, textarea {
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 6px;
+    padding: 7px 10px; min-height: 38px;
+  }
+  input[type="number"] { width: 6.5em; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); margin-left: auto; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--line-strong); display: inline-block; }
+  .sw-weekend { background: var(--weekend-bg); }
+  .sw-holiday { background: var(--holiday-bg); }
+  /* OLD CODE
+  .sw-today { background: transparent; border: 2px solid var(--today); }
+  */
+  .sw-today { background: var(--today-bg); border-color: var(--today-bg); }
+
+  .grid-wrap {
+    overflow-x: auto; background: var(--surface);
+    border: 1px solid var(--line-strong); border-radius: 8px;
+  }
+  table.cal { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  table.cal th, table.cal td {
+    border: 1px solid var(--line); text-align: center;
+    padding: 0; height: 34px; min-width: 34px; font-size: 0.85rem;
+  }
+  table.cal thead th {
+    font-weight: 600; font-size: 0.75rem; color: var(--muted);
+    background: var(--surface); position: sticky; top: 0;
+  }
+  table.cal thead th.wk { color: var(--weekend-ink); background: var(--weekend-bg); }
+  table.cal th.month, table.cal thead th.corner {
+    text-align: left; padding: 0 12px; min-width: 110px; font-size: 0.9rem;
+    font-weight: 600; color: var(--ink); position: sticky; left: 0; background: var(--surface); z-index: 1;
+  }
+  table.cal thead th.corner { z-index: 2; color: var(--muted); font-weight: 500; font-size: 0.8rem; }
+  /* OLD CODE
+  td.empty { background: transparent; }
+  td.wk { background: var(--weekend-bg); color: var(--weekend-ink); font-weight: 500; }
+  td.hol { background: var(--holiday-bg); color: var(--holiday-ink); font-weight: 700; cursor: help; }
+  td.hol.wk { box-shadow: inset 0 -3px 0 var(--weekend-ink); }
+  td.today { outline: 2px solid var(--today); outline-offset: -3px; font-weight: 700; }
+  */
+  td.empty { background: transparent; }
+  td.wk { background: var(--weekend-bg); color: var(--weekend-ink); font-weight: 500; }
+  td.hol { background: var(--hol-bg, var(--holiday-bg)); color: var(--hol-ink, var(--holiday-ink)); font-weight: 700; cursor: help; }
+  td.hol.wk { box-shadow: inset 0 -3px 0 var(--weekend-ink); }
+  td.today { background: var(--today-bg); color: var(--today-ink); font-weight: 700; }
+  td.today.hol { box-shadow: inset 0 0 0 3px var(--hol-bg, var(--holiday-bg)); }
+
+  .hc-default { --hol-bg: var(--holiday-bg); --hol-ink: var(--holiday-ink); }
+  .hc-red { --hol-bg: var(--hc-red-bg); --hol-ink: var(--hc-red-ink); }
+  .hc-orange { --hol-bg: var(--hc-orange-bg); --hol-ink: var(--hc-orange-ink); }
+  .hc-green { --hol-bg: var(--hc-green-bg); --hol-ink: var(--hc-green-ink); }
+  .hc-teal { --hol-bg: var(--hc-teal-bg); --hol-ink: var(--hc-teal-ink); }
+  .hc-purple { --hol-bg: var(--hc-purple-bg); --hol-ink: var(--hc-purple-ink); }
+  .hc-pink { --hol-bg: var(--hc-pink-bg); --hol-ink: var(--hc-pink-ink); }
+
+  div.field { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+  .color-pick { display: flex; gap: 8px; align-items: center; min-height: 38px; }
+  .swatch-btn {
+    width: 26px; height: 26px; border-radius: 50%; padding: 0; cursor: pointer;
+    border: 1px solid var(--line-strong); background: var(--hol-bg);
+  }
+  .swatch-btn[aria-checked="true"] { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+  .dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px;
+    vertical-align: middle; background: var(--hol-bg); border: 1px solid var(--line-strong);
+  }
+  select.hol-color { min-height: 30px; padding: 2px 6px; font-size: 0.82rem; }
+  td.day { cursor: pointer; }
+  td.day:hover { filter: brightness(0.94); }
+
+  .note { color: var(--muted); font-size: 0.85rem; margin: 10px 2px 0; }
+
+  section.holidays {
+    margin-top: 32px; display: grid; gap: 28px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  @media (max-width: 860px) { section.holidays { grid-template-columns: 1fr; } }
+  h2 { font-size: 1.15rem; margin: 0 0 12px; font-weight: 700; }
+  .add-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  /* OLD CODE
+  .add-row input[type="text"] { flex: 1 1 180px; }
+  */
+  .add-row label.field input[type="text"] { flex: none; width: 100%; }
+  .check { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; color: var(--muted); min-height: 38px; }
+  .btn {
+    border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+    border-radius: 6px; padding: 7px 14px; min-height: 38px; cursor: pointer; font-weight: 600;
+  }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+  .btn.ghost:hover { border-color: var(--ink); }
+  textarea { width: 100%; min-height: 130px; resize: vertical; font-size: 0.88rem; }
+  .load-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; align-items: center; }
+  .msg { font-size: 0.85rem; margin-top: 8px; min-height: 1.3em; }
+  .msg.err { color: var(--danger); }
+  .msg.ok { color: var(--accent); }
+
+  ul.hol-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); max-height: 420px; overflow-y: auto; }
+  ul.hol-list li {
+    /* OLD CODE
+    display: grid; grid-template-columns: 7.5em 1fr auto; gap: 12px; align-items: center;
+    */
+    display: grid; grid-template-columns: 7.5em 1fr auto auto; gap: 12px; align-items: center;
+    padding: 8px 2px; border-bottom: 1px solid var(--line); font-size: 0.9rem;
+  }
+  .hol-date { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .tag { font-size: 0.72rem; color: var(--muted); border: 1px solid var(--line-strong); border-radius: 10px; padding: 0 7px; margin-left: 6px; }
+  .del { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.85rem; padding: 4px 6px; }
+  .empty-list { color: var(--muted); font-size: 0.9rem; padding: 12px 2px; }
+  .list-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+
+  @media print {
+    section.holidays, .controls, .icon-btn, .note { display: none; }
+    body { background: #fff; }
+    .grid-wrap { border: none; overflow: visible; }
+    td.wk, td.hol, thead th.wk { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="year-block">
+      <button class="icon-btn" id="prevYear" aria-label="Previous year">&#8249;</button>
+      <h1 id="yearTitle">2026</h1>
+      <button class="icon-btn" id="nextYear" aria-label="Next year">&#8250;</button>
+    </div>
+    <div class="controls">
+      <label class="field">Year
+        <input type="number" id="yearInput" min="1900" max="2200" value="2026">
+      </label>
+      <label class="field">First column
+        <select id="startSelect">
+          <option value="auto">Auto (most months)</option>
+          <option value="0">Sunday</option>
+          <option value="1">Monday</option>
+          <option value="2">Tuesday</option>
+          <option value="3">Wednesday</option>
+          <option value="4">Thursday</option>
+          <option value="5">Friday</option>
+          <option value="6">Saturday</option>
+        </select>
+      </label>
+      <label class="field">Theme
+        <select id="themeSelect">
+          <option value="auto">System</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+      <button class="btn ghost" id="printBtn" type="button">Print</button>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch sw-weekend"></i>Weekend</span>
+      <span><i class="swatch sw-holiday"></i>Holiday</span>
+      <span><i class="swatch sw-today"></i>Today</span>
+    </div>
+  </header>
+
+  <div class="grid-wrap">
+    <table class="cal" id="cal" aria-label="Year calendar"></table>
+  </div>
+  <p class="note" id="note"></p>
+
+  <section class="holidays">
+    <div>
+      <h2>Add a holiday</h2>
+      <div class="add-row">
+        <label class="field">Date
+          <input type="date" id="hDate">
+        </label>
+        <label class="field" style="flex:1 1 180px">Name
+          <input type="text" id="hName" placeholder="Diwali">
+        </label>
+        <label class="check"><input type="checkbox" id="hRepeat"> Every year</label>
+        <div class="field">Color
+          <div class="color-pick" id="colorPick" role="radiogroup" aria-label="Holiday color"></div>
+        </div>
+        <button class="btn" id="addBtn" type="button">Add holiday</button>
+      </div>
+      <p class="msg" id="addMsg"></p>
+
+      <h2 style="margin-top:22px">Load holidays</h2>
+      <!-- OLD CODE (placeholder text)
+      One per line: date, name
+      2026-01-26, Republic Day
+      15/08/2026, Independence Day
+      *-12-25, Christmas  (repeats every year)
+      -->
+      <textarea id="bulk" placeholder="One per line: date, name, color (color optional)
+2026-01-26, Republic Day
+15/08/2026, Independence Day, green
+*-12-25, Christmas, red   (repeats every year)
+
+Colors: default, red, orange, green, teal, purple, pink
+
+JSON also works: [{&quot;date&quot;:&quot;2026-10-02&quot;,&quot;name&quot;:&quot;Gandhi Jayanti&quot;}]"></textarea>
+      <div class="load-actions">
+        <button class="btn" id="loadBtn" type="button">Load from text</button>
+        <label class="btn ghost" for="fileInput" style="display:inline-flex;align-items:center">Load from file</label>
+        <input type="file" id="fileInput" accept=".csv,.txt,.json,text/csv,application/json" hidden>
+        <button class="btn ghost" id="copyBtn" type="button">Copy all as CSV</button>
+      </div>
+      <p class="msg" id="loadMsg"></p>
+    </div>
+
+    <div>
+      <div class="list-head">
+        <h2 id="listTitle">Holidays in 2026</h2>
+        <button class="del" id="clearBtn" type="button">Clear all</button>
+      </div>
+      <ul class="hol-list" id="holList"></ul>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const DAYS = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+  const STORE_KEY = "yearCalendarHolidays.v1";
+  const COLORS = { default: "Default", red: "Red", orange: "Orange", green: "Green", teal: "Teal", purple: "Purple", pink: "Pink" };
+  let selectedColor = "default";
+  const colorOf = (h) => (COLORS[h.color] ? h.color : "default");
+
+  const $ = (id) => document.getElementById(id);
+  const yearInput = $("yearInput"), yearTitle = $("yearTitle"), startSelect = $("startSelect");
+  const cal = $("cal"), note = $("note"), holList = $("holList"), listTitle = $("listTitle");
+
+  // holidays: [{date:"YYYY-MM-DD"} or {date:"*-MM-DD"}, name]
+  let holidays = loadStore();
+  let year = new Date().getFullYear();
+
+  function loadStore() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.filter(h => h && h.date) : [];
+    } catch (e) { return []; }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(holidays)); } catch (e) { /* storage unavailable */ }
+  }
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const daysIn = (y, m) => new Date(y, m + 1, 0).getDate();
+
+  // Weekday that the most months of the year start on
+  function autoStart(y) {
+    const counts = [0,0,0,0,0,0,0];
+    for (let m = 0; m < 12; m++) counts[new Date(y, m, 1).getDay()]++;
+    let best = 0;
+    for (let d = 1; d < 7; d++) if (counts[d] > counts[best]) best = d;
+    return { day: best, count: counts[best] };
+  }
+
+  function holidayMap(y) {
+    const map = {};
+    holidays.forEach(h => {
+      let key = null;
+      if (h.date.startsWith("*-")) key = y + h.date.slice(1);
+      else if (h.date.startsWith(y + "-")) key = h.date;
+      // OLD CODE
+      // if (key) (map[key] = map[key] || []).push(h.name || "Holiday");
+      if (key) (map[key] = map[key] || []).push({ name: h.name || "Holiday", color: colorOf(h) });
+    });
+    return map;
+  }
+
+  function render() {
+    yearTitle.textContent = year;
+    yearInput.value = year;
+    listTitle.textContent = "Holidays in " + year;
+
+    const auto = autoStart(year);
+    const start = startSelect.value === "auto" ? auto.day : Number(startSelect.value);
+
+    const offsets = [], lengths = [];
+    let cols = 0;
+    for (let m = 0; m < 12; m++) {
+      offsets[m] = (new Date(year, m, 1).getDay() - start + 7) % 7;
+      lengths[m] = daysIn(year, m);
+      cols = Math.max(cols, offsets[m] + lengths[m]);
+    }
+
+    const hmap = holidayMap(year);
+    const now = new Date();
+    const todayKey = now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate());
+
+    let html = "<thead><tr><th class='corner' scope='col'>" + year + "</th>";
+    for (let c = 0; c < cols; c++) {
+      const wd = (start + c) % 7;
+      html += "<th scope='col' class='" + (wd === 0 || wd === 6 ? "wk" : "") + "'>" + DAYS[wd] + "</th>";
+    }
+    html += "</tr></thead><tbody>";
+
+    for (let m = 0; m < 12; m++) {
+      html += "<tr><th class='month' scope='row'>" + MONTHS[m] + "</th>";
+      for (let c = 0; c < cols; c++) {
+        // OLD CODE
+        // const d = c - offsets[m] + 1;
+        // if (d < 1 || d > lengths[m]) { html += "<td class='empty'></td>"; continue; }
+        // const wd = (start + c) % 7;
+        // const key = year + "-" + pad(m + 1) + "-" + pad(d);
+        // const cls = ["day"];
+        // if (wd === 0 || wd === 6) cls.push("wk");
+        // let title = MONTHS[m] + " " + d + ", " + DAYS[wd];
+        // if (hmap[key]) { cls.push("hol"); title += ": " + hmap[key].join(", "); }
+        // if (key === todayKey) cls.push("today");
+        const d = c - offsets[m] + 1;
+        const wd = (start + c) % 7;
+        const isWk = wd === 0 || wd === 6;
+        if (d < 1 || d > lengths[m]) { html += "<td class='empty" + (isWk ? " wk" : "") + "'></td>"; continue; }
+        const key = year + "-" + pad(m + 1) + "-" + pad(d);
+        const cls = ["day"];
+        if (isWk) cls.push("wk");
+        let title = MONTHS[m] + " " + d + ", " + DAYS[wd];
+        if (hmap[key]) {
+          cls.push("hol", "hc-" + hmap[key][0].color);
+          title += ": " + hmap[key].map(h => h.name).join(", ");
+        }
+        if (key === todayKey) { cls.push("today"); title += " (today)"; }
+        html += "<td class='" + cls.join(" ") + "' data-date='" + key + "' title='" + esc(title) + "'>" + pad(d) + "</td>";
+      }
+      html += "</tr>";
+    }
+    html += "</tbody>";
+    cal.innerHTML = html;
+
+    note.textContent = startSelect.value === "auto"
+      ? auto.count + " of 12 months in " + year + " start on " + fullDay(auto.day) + ", so the grid starts there. Click any date to prefill it in the holiday form."
+      : "Grid starts on " + fullDay(start) + ". Click any date to prefill it in the holiday form.";
+
+    renderList();
+  }
+
+  function fullDay(d) { return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][d]; }
+  function esc(s) { return String(s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[ch])); }
+
+  function renderList() {
+    const items = holidays
+      .map((h, i) => ({ h, i, sortKey: h.date.startsWith("*-") ? year + h.date.slice(1) : h.date }))
+      .filter(x => x.h.date.startsWith("*-") || x.h.date.startsWith(year + "-"))
+      .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+
+    if (!items.length) {
+      holList.innerHTML = "<li class='empty-list' style='display:block'>No holidays for " + year + " yet. Add one on the left or load a list.</li>";
+      return;
+    }
+    holList.innerHTML = items.map(x => {
+      const [, mm, dd] = x.sortKey.split("-");
+      const dt = new Date(year, Number(mm) - 1, Number(dd));
+      const label = dd + " " + MONTHS[dt.getMonth()].slice(0, 3) + ", " + DAYS[dt.getDay()].charAt(0) + DAYS[dt.getDay()].slice(1).toLowerCase();
+      const tag = x.h.date.startsWith("*-") ? "<span class='tag'>yearly</span>" : "";
+      // OLD CODE
+      // return "<li><span class='hol-date'>" + label + "</span><span>" + esc(x.h.name || "Holiday") + tag +
+      //        "</span><button class='del' data-i='" + x.i + "' type='button' aria-label='Remove " + esc(x.h.name || "holiday") + "'>Remove</button></li>";
+      const col = colorOf(x.h);
+      const opts = Object.keys(COLORS).map(k => "<option value='" + k + "'" + (k === col ? " selected" : "") + ">" + COLORS[k] + "</option>").join("");
+      return "<li><span class='hol-date'>" + label + "</span><span><i class='dot hc-" + col + "'></i>" + esc(x.h.name || "Holiday") + tag +
+             "</span><select class='hol-color' data-i='" + x.i + "' aria-label='Color for " + esc(x.h.name || "holiday") + "'>" + opts + "</select>" +
+             "<button class='del' data-i='" + x.i + "' type='button' aria-label='Remove " + esc(x.h.name || "holiday") + "'>Remove</button></li>";
+    }).join("");
+  }
+
+  // Parse dates: YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY, *-MM-DD
+  function normDate(raw) {
+    const s = String(raw).trim();
+    let m;
+    if ((m = s.match(/^\*[-\/](\d{1,2})[-\/](\d{1,2})$/))) return valid(2000, m[1], m[2]) ? "*-" + pad(m[1]) + "-" + pad(m[2]) : null;
+    if ((m = s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/))) return valid(m[1], m[2], m[3]) ? m[1] + "-" + pad(m[2]) + "-" + pad(m[3]) : null;
+    if ((m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})$/))) return valid(m[3], m[2], m[1]) ? m[3] + "-" + pad(m[2]) + "-" + pad(m[1]) : null;
+    return null;
+  }
+  function valid(y, mo, d) {
+    y = Number(y); mo = Number(mo); d = Number(d);
+    return mo >= 1 && mo <= 12 && d >= 1 && d <= daysIn(y, mo - 1);
+  }
+
+  function addHolidays(list) {
+    let added = 0, skipped = 0;
+    // OLD CODE
+    // list.forEach(({ date, name }) => {
+    //   const nd = normDate(date);
+    //   if (!nd) { skipped++; return; }
+    //   const nm = (name || "Holiday").trim() || "Holiday";
+    //   if (holidays.some(h => h.date === nd && h.name === nm)) { skipped++; return; }
+    //   holidays.push({ date: nd, name: nm });
+    //   added++;
+    // });
+    list.forEach(({ date, name, color }) => {
+      const nd = normDate(date);
+      if (!nd) { skipped++; return; }
+      const nm = (name || "Holiday").trim() || "Holiday";
+      const col = COLORS[String(color || "").toLowerCase()] ? String(color).toLowerCase() : "default";
+      if (holidays.some(h => h.date === nd && h.name === nm)) { skipped++; return; }
+      holidays.push({ date: nd, name: nm, color: col });
+      added++;
+    });
+    saveStore();
+    render();
+    return { added, skipped };
+  }
+
+  function parseText(text) {
+    const t = text.trim();
+    if (!t) return [];
+    if (t.startsWith("[") || t.startsWith("{")) {
+      const data = JSON.parse(t);
+      const arr = Array.isArray(data) ? data : Object.entries(data).map(([date, name]) => ({ date, name }));
+      // OLD CODE
+      // return arr.map(o => ({ date: o.date || o.Date || "", name: o.name || o.Name || o.title || "" }));
+      return arr.map(o => ({ date: o.date || o.Date || "", name: o.name || o.Name || o.title || "", color: o.color || o.Color || "" }));
+    }
+    // OLD CODE
+    // return t.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+    //   .filter(line => !/^date\s*[,\t;]/i.test(line))
+    //   .map(line => {
+    //     const parts = line.split(/\s*[,\t;]\s*/);
+    //     return { date: parts[0].replace(/^"|"$/g, ""), name: parts.slice(1).join(", ").replace(/^"|"$/g, "") };
+    //   });
+    return t.split(/\r?\n/).map(line => line.trim()).filter(Boolean)
+      .filter(line => !/^date\s*[,\t;]/i.test(line))
+      .map(line => {
+        const parts = line.split(/\s*[,\t;]\s*/).map(p => p.replace(/^"|"$/g, ""));
+        let color = "";
+        if (parts.length > 2 && COLORS[parts[parts.length - 1].toLowerCase()]) color = parts.pop().toLowerCase();
+        return { date: parts[0], name: parts.slice(1).join(", "), color };
+      });
+  }
+
+  function showMsg(el, text, ok) {
+    el.textContent = text;
+    el.className = "msg " + (ok ? "ok" : "err");
+  }
+
+  // Events
+  $("prevYear").addEventListener("click", () => { year--; render(); });
+  $("nextYear").addEventListener("click", () => { year++; render(); });
+  yearInput.addEventListener("change", () => {
+    const v = parseInt(yearInput.value, 10);
+    if (v >= 1900 && v <= 2200) { year = v; render(); } else yearInput.value = year;
+  });
+  startSelect.addEventListener("change", render);
+  // Theme: System follows the OS setting, Light/Dark override it
+  const THEME_KEY = "yearCalendarTheme";
+  const themeSelect = $("themeSelect");
+  function applyTheme(t) {
+    if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+    else document.documentElement.removeAttribute("data-theme");
+  }
+  let theme = "auto";
+  try { theme = localStorage.getItem(THEME_KEY) || "auto"; } catch (e) { /* storage unavailable */ }
+  themeSelect.value = theme;
+  applyTheme(theme);
+  themeSelect.addEventListener("change", () => {
+    applyTheme(themeSelect.value);
+    try { localStorage.setItem(THEME_KEY, themeSelect.value); } catch (e) { /* storage unavailable */ }
+  });
+
+  $("printBtn").addEventListener("click", () => window.print());
+
+  $("addBtn").addEventListener("click", () => {
+    const d = $("hDate").value, name = $("hName").value.trim();
+    if (!d) { showMsg($("addMsg"), "Pick a date first.", false); return; }
+    const date = $("hRepeat").checked ? "*" + d.slice(4) : d;
+    // OLD CODE
+    // const r = addHolidays([{ date, name }]);
+    const r = addHolidays([{ date, name, color: selectedColor }]);
+    if (r.added) {
+      showMsg($("addMsg"), "Added " + (name || "Holiday") + ".", true);
+      $("hName").value = "";
+      const y = Number(d.slice(0, 4));
+      if (!$("hRepeat").checked && y !== year) { year = y; render(); }
+    } else showMsg($("addMsg"), "That holiday is already on the list.", false);
+  });
+  $("hName").addEventListener("keydown", e => { if (e.key === "Enter") $("addBtn").click(); });
+
+  $("loadBtn").addEventListener("click", () => {
+    try {
+      const list = parseText($("bulk").value);
+      if (!list.length) { showMsg($("loadMsg"), "Paste at least one line like 2026-01-26, Republic Day.", false); return; }
+      const r = addHolidays(list);
+      showMsg($("loadMsg"), "Loaded " + r.added + " holiday" + (r.added === 1 ? "" : "s") + (r.skipped ? ", skipped " + r.skipped + " (bad date or duplicate)." : "."), r.added > 0);
+      if (r.added) $("bulk").value = "";
+    } catch (e) { showMsg($("loadMsg"), "Couldn't read that JSON. Check the brackets and quotes.", false); }
+  });
+
+  $("fileInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const r = addHolidays(parseText(String(reader.result)));
+        showMsg($("loadMsg"), file.name + ": loaded " + r.added + (r.skipped ? ", skipped " + r.skipped + "." : "."), r.added > 0);
+      } catch (err) { showMsg($("loadMsg"), file.name + " isn't valid CSV or JSON.", false); }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  $("copyBtn").addEventListener("click", async () => {
+    if (!holidays.length) { showMsg($("loadMsg"), "Nothing to copy yet.", false); return; }
+    // OLD CODE
+    // const csv = holidays.slice().sort((a, b) => a.date.localeCompare(b.date)).map(h => h.date + ", " + h.name).join("\n");
+    const csv = holidays.slice().sort((a, b) => a.date.localeCompare(b.date))
+      .map(h => h.date + ", " + h.name + (colorOf(h) !== "default" ? ", " + colorOf(h) : "")).join("\n");
+    try { await navigator.clipboard.writeText(csv); showMsg($("loadMsg"), "Copied " + holidays.length + " holidays as CSV.", true); }
+    catch (e) { $("bulk").value = csv; showMsg($("loadMsg"), "Clipboard blocked, so the CSV is in the text box above.", true); }
+  });
+
+  holList.addEventListener("click", (e) => {
+    const b = e.target.closest("button.del[data-i]");
+    if (!b) return;
+    holidays.splice(Number(b.dataset.i), 1);
+    saveStore(); render();
+  });
+  $("clearBtn").addEventListener("click", () => {
+    if (!holidays.length) return;
+    if (confirm("Remove all saved holidays, for every year?")) { holidays = []; saveStore(); render(); }
+  });
+
+  holList.addEventListener("change", (e) => {
+    const s = e.target.closest("select.hol-color");
+    if (!s) return;
+    holidays[Number(s.dataset.i)].color = s.value;
+    saveStore(); render();
+  });
+
+  // Color picker for new holidays
+  const colorPick = $("colorPick");
+  colorPick.innerHTML = Object.keys(COLORS).map(k =>
+    "<button type='button' class='swatch-btn hc-" + k + "' role='radio' aria-checked='" + (k === selectedColor) +
+    "' data-c='" + k + "' title='" + COLORS[k] + "' aria-label='" + COLORS[k] + "'></button>").join("");
+  colorPick.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-c]");
+    if (!b) return;
+    selectedColor = b.dataset.c;
+    colorPick.querySelectorAll("button").forEach(x => x.setAttribute("aria-checked", String(x === b)));
+  });
+
+  cal.addEventListener("click", (e) => {
+    const td = e.target.closest("td.day");
+    if (!td) return;
+    $("hDate").value = td.dataset.date;
+    $("hName").focus();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
